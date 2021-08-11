@@ -1,9 +1,10 @@
 package sapala_mateusz.Payroll;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 public class EmployeeController {
@@ -24,8 +25,12 @@ public class EmployeeController {
     }
 
     @GetMapping("/employees/{id}")
-    Employee getOneEmployee(@PathVariable Long id){
-        return repository.findById(id).orElseThrow(()->new EmployeeNotFoundException(id));
+    EntityModel<Employee> getOneEmployee(@PathVariable Long id){
+        Employee employee = repository.findById(id).orElseThrow(()->new EmployeeNotFoundException(id));
+        return  EntityModel.of(employee
+                , WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getOneEmployee(id)).withSelfRel()
+                , WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getAllEmployee()).withRel("employees")
+        );
     }
 
     @PutMapping("/employees/{id}")

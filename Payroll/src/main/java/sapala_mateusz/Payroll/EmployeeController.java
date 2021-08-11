@@ -12,18 +12,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 @RestController
 public class EmployeeController {
     private final EmployeeRepository repository;
+    private final EmployeeModelAssembler assembler;
 
-    EmployeeController(EmployeeRepository repository) {
+    public EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler) {
         this.repository = repository;
+        this.assembler = assembler;
     }
 
     @GetMapping(path="/employees")
     CollectionModel<EntityModel<Employee>> getAllEmployee(){
         List<EntityModel<Employee>> employees = repository.findAll().stream()
-                .map(employee->EntityModel.of(employee,
-                linkTo(methodOn(EmployeeController.class).getOneEmployee(employee.getId())).withSelfRel(),
-                linkTo(methodOn(EmployeeController.class).getAllEmployee()).withRel("employees")
-                )).collect(Collectors.toList());
+                .map(assembler::toModel).collect(Collectors.toList());
         return CollectionModel.of(employees,
                 linkTo(methodOn(EmployeeController.class).getAllEmployee()).withSelfRel());
     }
@@ -36,10 +35,7 @@ public class EmployeeController {
     @GetMapping("/employees/{id}")
     EntityModel<Employee> getOneEmployee(@PathVariable Long id){
         Employee employee = repository.findById(id).orElseThrow(()->new EmployeeNotFoundException(id));
-        return  EntityModel.of(employee
-                , WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getOneEmployee(id)).withSelfRel()
-                , WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(EmployeeController.class).getAllEmployee()).withRel("employees")
-        );
+        return  assembler.toModel(employee);
     }
 
     @PutMapping("/employees/{id}")

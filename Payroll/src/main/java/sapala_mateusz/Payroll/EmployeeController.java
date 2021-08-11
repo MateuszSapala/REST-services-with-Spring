@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 public class EmployeeController {
     private final EmployeeRepository repository;
 
@@ -13,7 +13,7 @@ public class EmployeeController {
         this.repository = repository;
     }
 
-    @GetMapping("/employees")
+    @GetMapping(path="/employees")
     List<Employee> getAllEmployee(){
         return repository.findAll();
     }

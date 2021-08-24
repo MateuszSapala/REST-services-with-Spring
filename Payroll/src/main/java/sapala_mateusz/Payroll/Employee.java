@@ -3,6 +3,7 @@ package sapala_mateusz.Payroll;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Entity
 public class Employee {
@@ -82,5 +83,10 @@ public class Employee {
     @Override
     public String toString(){
         return "Employee{id="+getId()+",name="+getName()+",role="+getRole()+"}";
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getRole());
     }
 }
